@@ -36,7 +36,7 @@ export function parseInput<T>({
 
   if (split === false) return input;
 
-  const splitted = input.split(split?.delimiter ?? '\n');
+  const splitted = input.split(split?.delimiter ?? '\r\n');
   const mapper = split?.mapper;
 
   return mapper === false
