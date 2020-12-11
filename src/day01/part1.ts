@@ -2,4 +2,15 @@ import { parseInput } from '../util';
 
 const input = parseInput();
 
-// TODO: Complete Part 1
+const solution = input
+    .flatMap((left) => {
+        return input.map((right) => {
+            if (left + right === 2020) {
+                return left * right;
+            }
+        });
+    })
+    .find((r) => !!r);
+
+// console.log(`Solution '${solution}' found.`);
+export default solution;
