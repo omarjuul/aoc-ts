@@ -1,12 +1,12 @@
 {
 	"compilerOptions": {
 		"strict": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
+		"module": "commonjs",
+		"moduleResolution": "node",
 		"target": "es2019",
-    "sourceMap": false,
-    "inlineSourceMap": true,
-    "sourceRoot": "src",
+		"sourceMap": false,
+		"inlineSourceMap": true,
+		"sourceRoot": "src",
 		"outDir": "./dist",
 		"declaration": false,
 		"removeComments": false,
