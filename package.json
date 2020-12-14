@@ -4,7 +4,9 @@
   "description": "A TypeScript template for Advent of Code",
   "main": "dist/index.js",
   "scripts": {
-    "start": "rimraf dist && tsc && node ."
+    "start": "node .",
+    "prestart": "rimraf dist && npm run build",
+    "build": "tsc"
   },
   "author": "izexi",
   "license": "ISC",
@@ -21,6 +23,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.1.4",
     "prettier": "^2.2.1",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "ts-node": "3.3.0"
   }
 }
