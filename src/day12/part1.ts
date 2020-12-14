@@ -1,18 +1,22 @@
 import { parseInput } from '../util';
 
-const input = parseInput({ split: { mapper: parseInstr } }).filter(x => null !== x);
+const input = parseInput({ split: { mapper: false } });
+const parsedInstr = input.map(parseInstr).filter(x => null !== x);
 
-const dest = input.reduce((pos: Position, d) => d!(pos), { x: 0, y: 0, face: 'E' });
+const dest = parsedInstr.reduce((pos: Position, d) => d!(pos), { x: 0, y: 0, face: 'E' });
 console.log(dest.x, dest.y);
 
 export default Math.abs(dest.x) + Math.abs(dest.y);
 
 function parseInstr(str: string) {
-    console.log(str);
-    if (!str)
+    if (!str) {
         return null;
-    const matches = str.match(/^(\w)(\d+)$/)!;
-    const direction = parseDirection(matches[1], +matches[2]);
+    }
+    const matches = str.match(/^(\w)(\d+)$/);
+    if (!matches) {
+        console.log(`'${str}'`, 'no matches');
+    }
+    const direction = parseDirection(matches![1], +matches![2]);
     return direction;
 }
 
