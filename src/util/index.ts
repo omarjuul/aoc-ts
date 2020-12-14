@@ -58,3 +58,11 @@ export const setupDay = (day: number) => {
   writeFileSync(`${dir}/part1.ts`, genTemplate(1));
   writeFileSync(`${dir}/part2.ts`, genTemplate(2));
 };
+
+export function sum(a: number, b: number): number {
+  return a + b;
+}
+
+export function product(a: number, b: number): number {
+  return a * b;
+}
