@@ -1,20 +1,22 @@
 import { parseInput } from '../util';
 
 const input = parseInput({ split: { delimiter: ',' } })
-const n = 30_000_000
 const lastIdxOf = new Map<number, number>()
-input.slice(0, -1).map((x, idx) => ({ x, idx })).forEach(i => lastIdxOf.set(i.x, i.idx))
 
-for (let i = input.length; i < n; i++) {
-    const prev = input[i - 1]
-    const lastIdx = lastIdxOf.get(prev)
-    input[i] = lastIdx === undefined
-        ? 0
-        : (i - 1) - lastIdx
+const n = 30_000_000
 
-    lastIdxOf.set(input[i - 1], i - 1)
-
-    if (i % 30000 === 0) console.log(`${Math.round(i / n * 10000) / 100}%`)
+let prev = -1
+for (let i = 0; i < n; i++) {
+    let val: number
+    if (i < input.length) {
+        val = input[i];
+    } else {
+        val = lastIdxOf.has(prev)
+            ? (i - 1) - lastIdxOf.get(prev)!
+            : 0
+    }
+    lastIdxOf.set(prev, i - 1)
+    prev = val
 }
 
-export default input[n - 1]
+export default prev
