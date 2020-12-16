@@ -66,3 +66,7 @@ export function sum(a: number, b: number): number {
 export function product(a: number, b: number): number {
   return a * b;
 }
+
+export function range(size: number, startAt = 0): number[] {
+  return [...Array(size).keys()].map(i => i + startAt);
+}
