@@ -29,7 +29,7 @@ for (let step = 0; step < BOOT_STEPS; step++) {
 }
 
 const flat = field.flatMap(w => w.flatMap(z => z.flatMap(y => y)))
-console.log(flat)
+// console.log(flat)
 export default flat.map(b => +b).reduce(sum)
 
 function calcIfOn(field: boolean[][][][], x: number, y: number, z: number, w: number): boolean {
@@ -52,7 +52,7 @@ function calcIfOn(field: boolean[][][][], x: number, y: number, z: number, w: nu
             }
         }
     }
-    if (field[w - 1] && field[w - 1][z - 1] && field[w - 1][z - 1][y - 1] && field[w - 1][z - 1][y - 1][x - 1]) {
+    if (field[w - 1]?.[z - 1]?.[y - 1]?.[x - 1]) {
         // activeNeighbourCount includes itself, so this checks for 2 or 3 neighbours
         return activeNeighbourCount === 3 || activeNeighbourCount === 4
     }

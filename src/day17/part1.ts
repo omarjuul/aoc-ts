@@ -42,7 +42,7 @@ function calcIfOn(field: boolean[][][], x: number, y: number, z: number): boolea
             }
         }
     }
-    if (field[z - 1] && field[z - 1][y - 1] && field[z - 1][y - 1][x - 1]) {
+    if (field[z - 1]?.[y - 1]?.[x - 1]) {
         // activeNeighbourCount includes itself, so this checks for 2 or 3 neighbours
         return activeNeighbourCount === 3 || activeNeighbourCount === 4
     }
