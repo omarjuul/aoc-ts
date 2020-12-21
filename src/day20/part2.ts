@@ -31,14 +31,13 @@ const [rightIdx, downIdx] = (indices[0] === 0 && indices[1] === 3)
     : indices
 
 const blockLocations = getBlockLocations(topLeftBlock, rightIdx, downIdx)
-console.log(blockLocations)
-console.log()
-const points = blockLocations.flatMap(getPoints)
-console.log(drawOnGrid(34, new Set(points)))
-
-console.log()
 const pointsRot = blockLocations.flatMap(getPointsRotated)
-console.log(drawOnGrid(34, new Set(pointsRot)))
+console.log(drawOnGrid(26, new Set(pointsRot)))
+
+// TODO: get maxX and maxY
+// translate monster into Point[]
+// try to draw monster on map from every starting point
+// rotate and repeat (x8)
 
 
 function getBlockLocations(topLeftBlock: MatchHelper, rightIdx: number, downIdx: number) {
@@ -131,10 +130,21 @@ function getPoints(tileLoc: TileLocation): string[] {
 function getPointsRotated(tileLoc: TileLocation): string[] {
     // const tile = matchers.map(m => m.block).find(m => m.tileNr === tileLoc.tileNr)!
     // console.log(tile.pixels)
-    const idxs = tileLoc.tile.pixels.map((p, idx) => ({ p, idx })).filter(x => x.p).map(x => x.idx)
-    const [offsX, offsY] = [tileLoc.topLeft.x * (BlockSize + 1), tileLoc.topLeft.y * (BlockSize + 1)]
-    return idxs.map(i => getCoord(i, tileLoc.rotation)).map(x => `${x.x + offsX},${x.y + offsY}`)
+    const idxs = tileLoc.tile.pixels
+        .map((p, idx) => ({ p, idx }))
+        .filter(x => x.p)
+        .map(x => x.idx)
+    const [offsX, offsY] = [tileLoc.topLeft.x * (BlockSize - 2), tileLoc.topLeft.y * (BlockSize - 2)]
+    return idxs
+        .map(i => getCoord(i, tileLoc.rotation))
+        .filter(p => !isBorder(p))
+        .map(x => `${x.x + offsX},${x.y + offsY}`)
     // console.log(tileLoc.rotation, pointSet)
+}
+
+function isBorder(p: Point): boolean {
+    const max = BlockSize - 1
+    return p.x == 0 || p.y == 0 || p.x == max || p.y == max
 }
 
 function getCoord(idx: number, rotation: number): Point {
