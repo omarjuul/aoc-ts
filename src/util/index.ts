@@ -70,3 +70,7 @@ export function product(a: number, b: number): number {
 export function range(size: number, startAt = 0): number[] {
   return [...Array(size).keys()].map(i => i + startAt);
 }
+
+export function mod(num: number, modulo: number) {
+  return ((num % modulo) + modulo) % modulo
+};

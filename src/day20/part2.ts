@@ -1,6 +1,9 @@
-import { parseInput, product, range, sum } from '../util';
+import { mod, range, sum } from '../util';
 import { cornerBlocks, matchMap, BLOCK_SIZE, Block, MatchHelper, matchers } from './part1';
 
+const mod4 = (num: number) => mod(num, 4)
+
+let BlockSize = BLOCK_SIZE
 const SEAMONSTER = `                  # 
 #    ##    ##    ###
  #  #  #  #  #  #   `
@@ -8,7 +11,7 @@ const SEAMONSTER = `                  #
 type Point = { x: number, y: number }
 
 interface TileLocation {
-    tileNr: number
+    tile: Block
     rotation: number
     topLeft: Point
 }
@@ -19,87 +22,124 @@ const roughPatchLocations = new Set<Point>()
 const topLeftBlock = cornerBlocks[0]
 
 const indices = topLeftBlock.borderIds
-    .map((id, idx) => ({ idx, match: matchMap.get(id)!.filter(x => x !== topLeftBlock.block.tileNr).length > 0 }))
+    .map((borderId, idx) => ({ idx, match: matchMap.get(borderId)!.filter(x => x !== topLeftBlock.block.tileNr).length > 0 }))
     .filter(a => a.match)
     .map(a => a.idx)
 
-let [rightIdx, downIdx] = (indices[0] === 0 && indices[1] === 3)
+const [rightIdx, downIdx] = (indices[0] === 0 && indices[1] === 3)
     ? [indices[1], indices[0]]
     : indices
 
-// find "correct" orientation
-// find blocks to the right
-// find block below this one
-const blockLocations: TileLocation[] = []
-let currentTile: MatchHelper | undefined = topLeftBlock
-let lastLeftTile = topLeftBlock
-let x, y: number
-// rotate(topLeftBlock.block, 1 - indices[0])
-y = 0
-while (true) {
-    x = 0
-    while (true) {
-        const rotation = getRotation(rightIdx)
-        blockLocations.push({ tileNr: currentTile.block.tileNr, rotation, topLeft: { x, y } })
-        const newInfo = getAdjTileWithNewIdx(currentTile, rightIdx)
-        if (!newInfo) {
-            break;
-        }
-        [currentTile, rightIdx] = [newInfo.tile, newInfo.directionIdx]
-    }
-    // console.log(blockLocations)
-    // blockLocations.forEach(drawRotated)
+const blockLocations = getBlockLocations(topLeftBlock, rightIdx, downIdx)
+console.log(blockLocations)
+console.log()
+const points = blockLocations.flatMap(getPoints)
+console.log(drawOnGrid(34, new Set(points)))
 
-    const info = getAdjTileWithNewIdx(lastLeftTile, downIdx)
-    if (!info) break;
-    [currentTile, downIdx] = [info.tile, info.directionIdx]
-    lastLeftTile = currentTile
-    rightIdx = (downIdx - 1) % 4
-    if (!(matchMap.get(currentTile.borderIds[rightIdx])!.some(nr => nr !== currentTile?.block.tileNr))) {
-        rightIdx = (rightIdx + 2) % 4
+console.log()
+const pointsRot = blockLocations.flatMap(getPointsRotated)
+console.log(drawOnGrid(34, new Set(pointsRot)))
+
+
+function getBlockLocations(topLeftBlock: MatchHelper, rightIdx: number, downIdx: number) {
+    const blockLocations: TileLocation[] = []
+    let currentTile: MatchHelper = topLeftBlock
+    let lastLeftTile = currentTile
+    let x, y: number
+    y = 0
+    while (true) {
+        x = 0
+        while (true) {
+            const rotation = getRotation(rightIdx)
+            // console.log(currentTile.block.tileNr, rotation)
+            blockLocations.push({ tile: currentTile.block, rotation, topLeft: { x, y } })
+            const newInfo = getAdjTileWithNewIdx(currentTile, rightIdx)
+            if (!newInfo) {
+                break;
+            }
+            ({ tile: currentTile, directionIdx: rightIdx } = newInfo)
+            x++
+        }
+
+        const info = getAdjTileWithNewIdx(lastLeftTile, downIdx)
+        if (!info) break;
+        ({ tile: currentTile, directionIdx: downIdx } = info)
+        y++
+        lastLeftTile = currentTile
+        rightIdx = downIdx < 4
+            ? mod4(downIdx - 1)
+            : mod4(downIdx + 1) + 4
+
+        // if (!(matchMap.get(currentTile.borderIds[rightIdx % 4])!.some(nr => nr !== currentTile.block.tileNr))) {
+        //     console.log(rightIdx)
+        //     throw new Error("WHA");
+        // }
+        // console.log('down', downIdx, 'right', rightIdx)
     }
+    return blockLocations
 }
 
-// todo
-console.log()
+function getAdjTileWithNewIdx(tile: MatchHelper, prevDirIdx: number): { tile: MatchHelper, directionIdx: number } | undefined {
+    // console.log(`trying to match tile ${tile.block.tileNr}, direction ${prevDirIdx}`)
+    // console.log(drawOnGrid(10, new Set(getPoints({ tile: tile.block, topLeft: { x: 0, y: 0 }, rotation: 0 }))))
 
-
-function getAdjTileWithNewIdx(tile: MatchHelper, directionIdx: number): { tile: MatchHelper, directionIdx: number } | undefined {
-    const borderId = tile.borderIds[directionIdx % 4]
+    const borderId = tile.borderIds[prevDirIdx % 4]
     const borderingTileNr = matchMap.get(borderId)!
         .find(nr => nr !== tile.block.tileNr)
     if (!borderingTileNr) return
-    const borderingTile = matchers.find(m => m.block.tileNr === borderingTileNr)!
 
-    let borderIdxOnNewTile = borderingTile.matchIds.findIndex(id => id === borderId)!
-    if (directionIdx >= 4) {
-        borderIdxOnNewTile = (borderIdxOnNewTile + 4) % 8
+    const borderingTile = matchers.find(m => m.block.tileNr === borderingTileNr)!
+    const matchIdx = borderingTile.matchIds.findIndex(id => id === borderId)
+
+    const oldFlipped = prevDirIdx >= 4
+    const newFlipped = matchIdx >= 4
+    const shouldFlip = oldFlipped !== newFlipped
+
+    let directionIdx = mod4(matchIdx + 2)
+    if (shouldFlip) {
+        directionIdx += 4
     }
+
+    // console.log(`found bordering tile ${borderingTileNr}, matched on ${matchIdx}, new direction ${directionIdx}`)
+    // console.log(drawOnGrid(10, new Set(getPoints({ tile: borderingTile.block, topLeft: { x: 0, y: 0 }, rotation: 0 }))))
+
     return {
         tile: borderingTile,
-        directionIdx: (borderIdxOnNewTile + 2) % 4 + (borderIdxOnNewTile < 4 ? 0 : 4)
+        directionIdx
     }
 }
 
 // calculates clockwise rotation steps needed to align the right index
 function getRotation(rightIdx: number): number {
-    return rightIdx < 4
-        ? (5 - rightIdx) % 4
-        : 4 + (5 - rightIdx % 4) % 4;
+    if (rightIdx < 4) {
+        return mod4(5 - rightIdx)
+    }
+    // else we have flip over X-axis *and* rotation
+    switch (rightIdx) {
+        case 4: return 6;
+        case 5: return 4;
+        case 6: return 5;
+        case 7: return 7;
+    }
+    throw new Error(`unexpexted rightIdx ${rightIdx}`);
 }
 
-function drawRotated(tileLoc: TileLocation) {
-    const tile = matchers.map(m => m.block).find(m => m.tileNr === tileLoc.tileNr)!
+function getPoints(tileLoc: TileLocation): string[] {
+    return getPointsRotated({ rotation: 0, tile: tileLoc.tile, topLeft: tileLoc.topLeft })
+}
+
+function getPointsRotated(tileLoc: TileLocation): string[] {
+    // const tile = matchers.map(m => m.block).find(m => m.tileNr === tileLoc.tileNr)!
     // console.log(tile.pixels)
-    const idxs = tile.pixels.map((p, idx) => ({ p, idx })).filter(x => x.p).map(x => x.idx)
-    const pointSet = new Set(idxs.map(i => getCoord(i, tileLoc.rotation)).map(x => `${x.x},${x.y}`))
+    const idxs = tileLoc.tile.pixels.map((p, idx) => ({ p, idx })).filter(x => x.p).map(x => x.idx)
+    const [offsX, offsY] = [tileLoc.topLeft.x * (BlockSize + 1), tileLoc.topLeft.y * (BlockSize + 1)]
+    return idxs.map(i => getCoord(i, tileLoc.rotation)).map(x => `${x.x + offsX},${x.y + offsY}`)
     // console.log(tileLoc.rotation, pointSet)
-    console.log(range(10).map(y => range(10).map(x => pointSet.has(`${x},${y}`) ? '#' : '.').join('')).join('\n'))
 }
 
 function getCoord(idx: number, rotation: number): Point {
-    const [x, y] = [idx % BLOCK_SIZE, Math.floor(idx / BLOCK_SIZE)]
-    const max = BLOCK_SIZE - 1
+    const [x, y] = [idx % BlockSize, Math.floor(idx / BlockSize)]
+    const max = BlockSize - 1
     switch (rotation) {
         case 0:
             return { x, y }
@@ -122,3 +162,53 @@ function getCoord(idx: number, rotation: number): Point {
             throw new Error(`unknown rotation factor ${rotation}`)
     }
 }
+
+function drawOnGrid(gridSize: number, points: Set<string>): string {
+    return range(gridSize).map(y => range(gridSize).map(x => points.has(`${x},${y}`) ? '#' : '.').join('')).join('\n')
+}
+
+/* BlockSize = 3
+const pixels = [true, true, false, false, false, false, false, false, false]
+const test = range(8).map(r => drawRotated({ rotation: r, tile: { tileNr: 0, pixels }, topLeft: { x: 0, y: 0 } }))
+test.forEach((t, i) => { console.log('rot ', i); drawOnGrid(3, new Set(t)); console.log() }) */
+/*
+noFlip, 0 rot
+XX.
+...
+...
+
+1 rot
+..X
+..X
+...
+
+2 rot
+...
+...
+.XX
+
+3 rot
+...
+X..
+X..
+
+FlipOverXAxis, 0 rot == 2 rot.reverse() := 4
+...
+...
+XX.
+
+FlipOverXAxis, 1 rot == 3 rot.reverse() := 5
+X..
+X..
+...
+
+FlipOverXAxis, 2 rot == 0 rot.reverse() := 6
+.XX
+...
+...
+
+FlipOverXAxis, 3 rot == 1 rot.reverse() := 7
+...
+..X
+..X
+*/
