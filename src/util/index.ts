@@ -74,3 +74,10 @@ export function range(size: number, startAt = 0): number[] {
 export function mod(num: number, modulo: number) {
   return ((num % modulo) + modulo) % modulo
 };
+
+export function trueIndicesOf(arr: boolean[]): number[] {
+  return arr
+    .map((b, idx) => ({ b, idx }))
+    .filter(({ b }) => b)
+    .map(({ idx }) => idx)
+}
