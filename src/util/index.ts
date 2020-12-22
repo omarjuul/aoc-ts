@@ -59,23 +59,15 @@ export const setupDay = (day: number) => {
   writeFileSync(`${dir}/part2.ts`, genTemplate(2));
 };
 
-export function sum(a: number, b: number): number {
-  return a + b;
-}
 
-export function product(a: number, b: number): number {
-  return a * b;
-}
+export const sum = (a: number, b: number) => a + b
+export const product = (a: number, b: number) => a * b
 
-export function range(size: number, startAt = 0): number[] {
-  return [...Array(size).keys()].map(i => i + startAt);
-}
+export const range = (size: number, startAt = 0) => [...Array(size).keys()].map(i => i + startAt)
 
-export function mod(num: number, modulo: number) {
-  return ((num % modulo) + modulo) % modulo
-};
+export const mod = (num: number, modulo: number) => ((num % modulo) + modulo) % modulo
 
-export function trueIndicesOf(arr: boolean[]): number[] {
+export const trueIndicesOf = (arr: boolean[]) => {
   return arr
     .map((b, idx) => ({ b, idx }))
     .filter(({ b }) => b)
