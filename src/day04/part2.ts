@@ -1,4 +1,4 @@
-import { parseInput } from '../util';
+import { parseInput, NL } from '../util';
 
 const input = parseInput({ split: { mapper: false, delimiter: "\r\n\r\n" } });
 
@@ -19,7 +19,7 @@ export default input
     .reduce((acc, cur) => acc += +cur, 0);
 
 function getFields(str: string): string[][] {
-    const fieldsWithValues = str.split('\r\n').flatMap(l => l.split(' '));
+    const fieldsWithValues = str.split(NL).flatMap(l => l.split(' '));
     return fieldsWithValues.map(fwv => fwv.split(':'))
 }
 

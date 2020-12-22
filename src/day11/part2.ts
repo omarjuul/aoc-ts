@@ -79,7 +79,3 @@ interface Point {
     x: number;
     y: number;
 }
-
-function printable(map: string[][]): string {
-    return map.map(l => l.join('')).join('\r\n');
-}

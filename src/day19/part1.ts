@@ -1,6 +1,6 @@
-import { parseInput } from '../util';
+import { parseInput, NL, BLANKLINE } from '../util';
 
-const [rules, msgs] = parseInput({ split: { delimiter: '\r\n\r\n', mapper: (s: string) => s.split('\r\n') } });
+const [rules, msgs] = parseInput({ split: { delimiter: BLANKLINE, mapper: (s: string) => s.split(NL) } });
 
 // const rules = [`0: 1 2`,
 //     `1: "a"`,

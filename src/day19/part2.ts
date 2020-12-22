@@ -1,7 +1,7 @@
-import { parseInput } from '../util';
+import { parseInput, NL, BLANKLINE } from '../util';
 
-// const [rules, msgs] = parseInput({ split: { delimiter: '\r\n\r\n', mapper: (s: string) => s.split('\r\n') } });
-const [rules, msgs] = exampleInput().split('\n\n').map((s: string) => s.split('\n'));
+const [rules, msgs] = parseInput({ split: { delimiter: BLANKLINE, mapper: (s: string) => s.split(NL) } });
+// const [rules, msgs] = exampleInput().split('\n\n').map((s: string) => s.split('\n'));
 
 const rulesMap = new Map(rules.map(parseRule))
 const ruleZero = getRule(0, rulesMap)

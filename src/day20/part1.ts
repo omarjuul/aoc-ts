@@ -1,7 +1,7 @@
-import { parseInput, product, sum } from '../util';
+import { parseInput, NL, BLANKLINE, product, sum } from '../util';
 
 export const BLOCK_SIZE = 10
-const input = parseInput({ split: { delimiter: '\r\n\r\n', mapper: parseBlock } })
+const input = parseInput({ split: { delimiter: BLANKLINE, mapper: parseBlock } })
 export const matchers = input.map(getMatchHelper)
 const fuqU: [number, number][][] = matchers.map(m => m.matchIds.map(id => [id, m.block.tileNr]))
 const unflipped = fuqU.flatMap(typeScript => typeScript)
@@ -33,7 +33,7 @@ export interface MatchHelper {
 }
 
 function parseBlock(block: string): Block {
-    const [header, ...lines] = block.split('\r\n')
+    const [header, ...lines] = block.split(NL)
     const pixels = lines.flatMap(l => Array.from(l, v => v === '#'))
     const tileNr = +header.slice(-5, -1)
     return { tileNr, pixels }

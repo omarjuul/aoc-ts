@@ -1,9 +1,9 @@
-import { parseInput, sum } from '../util';
+import { parseInput, NL, BLANKLINE, sum } from '../util';
 
-const input = parseInput({ split: { delimiter: '\r\n\r\n', mapper: false } });
-const rules = input[0].split('\r\n').map(parseRule)
-const myTicket = input[1].split('\r\n')[1].split(',').map(str => +str)
-const scannedTickets = input[2].split('\r\n').slice(1).map(l => l.split(',').map(str => +str))
+const input = parseInput({ split: { delimiter: BLANKLINE, mapper: false } });
+const rules = input[0].split(NL).map(parseRule)
+const myTicket = input[1].split(NL)[1].split(',').map(str => +str)
+const scannedTickets = input[2].split(NL).slice(1).map(l => l.split(',').map(str => +str))
 
 const faultyTickets = scannedTickets.flatMap(ticketEntry =>
     ticketEntry.filter(t => !followsAtLeastOneRule(t))

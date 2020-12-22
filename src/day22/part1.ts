@@ -1,9 +1,9 @@
-import { parseInput, sum } from '../util';
+import { parseInput, NL, BLANKLINE, sum } from '../util';
 
 const input = parseInput({
     split: {
-        delimiter: '\r\n\r\n', mapper: (s: string) =>
-            s.split('\r\n')
+        delimiter: BLANKLINE, mapper: (s: string) =>
+            s.split(NL)
                 .filter((s, i) => i > 0 && s !== '')
                 .map(s => +s)
     }

@@ -1,7 +1,7 @@
-import { parseInput } from '../util';
+import { parseInput, NL, BLANKLINE } from '../util';
 
-const input = parseInput({ split: { mapper: false, delimiter: '\r\n\r\n' } })
-    .map(group => group.split('\r\n'));
+const input = parseInput({ split: { mapper: false, delimiter: BLANKLINE } })
+    .map(group => group.split(NL));
 
 function determineGroupYesCount(group: string[]): number {
     const yesQuestions = new Set();

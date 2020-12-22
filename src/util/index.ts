@@ -9,16 +9,16 @@ export const formatDay = (day: number | string) =>
  * @property {funcion(string, number, string[]): *|false} [mapper=Number] - a function that will be used to map the splitted input (false will omit the mapping and return the splitted input)
  */
 interface SplitOptions<T> {
-  delimiter?: string;
+  delimiter?: string | RegExp;
   mapper?: ((e: string, i: number, a: string[]) => T) | false;
 }
 
 export function parseInput(): number[];
 export function parseInput(options: { split: false }): string;
 export function parseInput(options: {
-  split: { delimiter?: string; mapper: false };
+  split: { delimiter?: string | RegExp; mapper: false };
 }): string[];
-export function parseInput(options: { split: { delimiter: string } }): number[];
+export function parseInput(options: { split: { delimiter: string | RegExp } }): number[];
 export function parseInput<T>(options: { split: SplitOptions<T> }): T[];
 /**
  * Parse the input from {day}/input.txt
@@ -36,7 +36,7 @@ export function parseInput<T>({
 
   if (split === false) return input;
 
-  const splitted = input.split(split?.delimiter ?? '\r\n').filter(s => s.length > 0);
+  const splitted = input.split(split?.delimiter ?? NL).filter(s => s.length > 0);
   const mapper = split?.mapper;
 
   return mapper === false
@@ -59,6 +59,8 @@ export const setupDay = (day: number) => {
   writeFileSync(`${dir}/part2.ts`, genTemplate(2));
 };
 
+export const NL = /\r?\n/
+export const BLANKLINE = /\r?\n\r?\n/
 
 export const sum = (a: number, b: number) => a + b
 export const product = (a: number, b: number) => a * b
