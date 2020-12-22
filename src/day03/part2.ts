@@ -18,10 +18,12 @@ export default slopes
     .reduce((product, trees) => product * trees, 1);
 
 function countTrees(right: number, down: number) {
+    const steps = rows / down
     let treeCount = 0;
+    let col = 0, row = 0;
 
-    for (let col = 0, row = 0; row < rows; row += down) {
-        col = (col + right) % cols;
+    for (let step = 0; step < steps; col += right, row += down, step++) {
+        col %= cols
         if (input[row][col] === '#')
             treeCount++;
     }
