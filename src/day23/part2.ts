@@ -1,70 +1,62 @@
 import { parseInput, range } from '../util';
 
 const input = parseInput({ split: { delimiter: '' } });
-const max = Math.max(...input)
-const min = Math.min(...input)
+const nodePointers = new Map<number, LinkedListNode>()
+let prev: LinkedListNode | undefined = undefined
+for (const idx of range(1e6, 1)) {
+    const label = input[idx - 1] ?? idx
+    const node: LinkedListNode = { next: undefined, label }
+    if (prev) {
+        prev.next = node
+    }
+    nodePointers.set(label, node)
+    prev = node
+}
+const [first, last] = [nodePointers.get(input[0])!, prev!]
+last.next = first
+let currentNode = first
+console.log('first node', first.label)
 
 for (const move of range(10_000_000)) {
-    const removed = input.splice(1, 3)
-    let find = input[0] - 1
-    // inefficient, but whatever
-    while (input.indexOf(find) < 0) {
-        find--
-        if (find < min) find = max
-    }
-    const destIdx = input.indexOf(find)
-    input.splice(destIdx + 1, 0, ...removed)
-    input.push(input.shift()!)
+    // if (move % 100000 === 0) console.log(move)
 
-    if (move % 100000 === 0) console.log(move)
+    const removedhead = currentNode.next!
+    const removedmidl = removedhead.next!
+    const removedtail = removedmidl.next!
+    const nextNode = removedtail!.next!
+
+    let find = currentNode.label - 1
+    if (find < 1) find = 1e6
+    let targetNode: LinkedListNode | undefined
+    while ([removedhead.label, removedmidl.label, removedtail.label].includes(find)) {
+        find--
+        if (find < 1) find = 1e6
+    }
+    targetNode = nodePointers.get(find)
+    if (!targetNode) {
+        console.log(`node ${find} not found`)
+        console.log([removedhead.label, removedmidl.label, removedtail.label])
+    }
+    const afterTarget = targetNode!.next!
+
+    currentNode.next = nextNode
+    targetNode!.next = removedhead
+    removedtail.next = afterTarget
+
+    if (move < 10) console.log(currentNode.label, nextNode.label)
+
+    currentNode = nextNode
 }
 
-export default input
+const oneNode = nodePointers.get(1)!
+const secondNode = oneNode.next!
+const thirdNode = secondNode.next!
+console.log(oneNode.label, secondNode.label, thirdNode.label)
+
+export default secondNode.label * thirdNode.label
 
 
-// import { mod, parseInput, range } from '../util';
-
-// const input = parseInput({ split: { delimiter: '' } });
-// const max = 1e6
-// const min = Math.min(...input)
-// const indices = new Map(input.map((lbl, idx) => [lbl, idx]))
-// const labels = new Map(input.map((lbl, idx) => [idx, lbl]))
-// let currentIdx = 0
-
-// for (const move of range(1e7)) {
-//     let currentLabel = getAtIndex(0)
-//     const v1 = getAtIndex(currentIdx + 1)
-//     const v2 = getAtIndex(currentIdx + 2)
-//     const v3 = getAtIndex(currentIdx + 3)
-//     let find = currentLabel - 1
-//     while ([v1, v2, v3].includes(find)) {
-//         find--
-//         if (find < min) find = max
-//     }
-
-//     const targetIdx = getIndexForLabel(find)
-//     insertAt(targetIdx, v1)
-//     insertAt(targetIdx + 1, v2)
-//     insertAt(targetIdx + 2, v3)
-//     insertAt(targetIdx + 3, currentLabel)
-//     console.log(currentLabel, currentIdx)
-//     currentIdx += 4
-// }
-
-// export default input
-
-
-// function getAtIndex(idx: number) {
-//     return labels.get(mod(idx + currentIdx, max)) ?? mod(idx + 1 + currentIdx, max)
-
-// }
-
-// function getIndexForLabel(label: number) {
-//     return (indices.get(label) ?? mod(label - 1 - currentIdx, max)) + 1
-// }
-
-// function insertAt(targetIdx: number, label: number) {
-//     const idx = mod(targetIdx - currentIdx, max)
-//     indices.set(label, targetIdx)
-//     labels.set(targetIdx, label)
-// }
+interface LinkedListNode {
+    next: LinkedListNode | undefined
+    label: number
+}
